@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Moving Balls</title>
+
+  <style>
+    .ball {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    #ball1 { top: 0; left: 0; background-color: #3498db; }
+    #ball2 { top: 100px; left: 100px; background-color: #e74c3c; }
+    
+    #bounceMessage {
+      position: absolute;
+      display: none;
+      color: #ffffff;
+      font-size: 20px;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  </style>
+
+</head>
+<body>
+
+  <div class="ball" id="ball1"></div>
+  <div class="ball" id="ball2"></div>
+  <p id="bounceMessage">BOUNCE!</p>
+
+  <script>
+    const balls = document.querySelectorAll('.ball');
+    const velocities = [3, 5]; // Different speeds for ball1 and ball2
+    let reverse = [false, false];
+    let messageTimer;
+
+    function moveBalls() {
+      balls.forEach((ball, index) => {
+        let positionX = parseInt(ball.style.left) || 0;
+        let positionY = parseInt(ball.style.top) || 0;
+
+        if (!reverse[index]) {
+          positionX += velocities[index];
+          positionY += velocities[index];
+        } else {
+          positionX -= velocities[index];
+          positionY -= velocities[index];
+        }
+
+        ball.style.left = positionX + 'px';
+        ball.style.top = positionY + 'px';
+
+        const maxX = window.innerWidth - ball.clientWidth;
+        const maxY = window.innerHeight - ball.clientHeight;
+
+        if (positionX >= maxX || positionX <= 0 || positionY >= maxY || positionY <= 0) {
+          reverse[index] = !reverse[index];
+          changeAppearance(ball);
+          toggleMessage();
+        }
+      });
+    }
+
+    function toggleMessage() {
+      const message = document.getElementById('bounceMessage');
+
+      if (message) {
+        clearTimeout(messageTimer);
+        message.style.display = (message.style.display === 'none') ? 'block' : 'none';
+        messageTimer = setTimeout(toggleMessage, 500);
+      } else {
+        showMessage('BOUNCE!');
+      }
+    }
+
+    function showMessage(message) {
+      const existingMessage = document.getElementById('bounceMessage');
+
+      if (existingMessage) {
+        clearTimeout(messageTimer);
+        document.body.removeChild(existingMessage);
+      }
+
+      const paragraph = document.createElement('p');
+      paragraph.textContent = message;
+      paragraph.id = 'bounceMessage';
+      document.body.appendChild(paragraph);
+
+      messageTimer = setTimeout(toggleMessage, 500);
+    }
+
+    function changeAppearance(ball) {
+      ball.style.backgroundColor = getRandomColor();
+      setRandomSize(ball);
+    }
+
+    function setRandomSize(ball) {
+      const randomSize = Math.floor(Math.random() * (150 - 50 + 1)) + 50;
+      ball.style.width = randomSize + 'px';
+      ball.style.height = randomSize + 'px';
+    }
+
+    function getRandomColor() {
+      const r = Math.floor(Math.random() * 256);
+      const g = Math.floor(Math.random() * 256);
+      const b = Math.floor(Math.random() * 256);
+
+      return `rgb(${r},${g},${b})`;
+    }
+
+    setInterval(moveBalls, 150);
+  </script>
+
+</body>
+</html>
+
